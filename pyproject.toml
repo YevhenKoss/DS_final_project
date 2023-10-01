@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "ds-final-project"
+version = "0.1.0"
+description = ""
+authors = ["YevhenKoss <kossik89@gmail.com>"]
+readme = "README.md"
+packages = [{include = "ds_final_project"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.0.305"
+pypdf = "^3.16.2"
+openai = "^0.28.1"
+chromadb = "^0.4.13"
+tiktoken = "^0.5.1"
+docx2txt = "^0.8"
+python-dotenv = "^1.0.0"
+streamlit = "^1.27.1"
+pypdf2 = "^3.0.1"
+faiss-cpu = "^1.7.4"
+huggingface-hub = "^0.17.3"
+instructorembedding = "^1.0.1"
+sentence-transformers = "^2.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

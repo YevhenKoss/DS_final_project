@@ -21,6 +21,7 @@ faiss-cpu = "^1.7.4"
 huggingface-hub = "^0.17.3"
 instructorembedding = "^1.0.1"
 sentence-transformers = "^2.2.2"
+googletrans = "^3.0.0"
 
 
 [build-system]

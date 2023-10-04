@@ -13,6 +13,9 @@ import os
 # from langchain.chat_models import ChatOpenAI    #for OpenAI llm
 # from langchain.embeddings import OpenAIEmbeddings  #for OpenAI llm
 
+size = 50000000
+acc = 0
+
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -85,6 +88,15 @@ def translate_text(text, target_language):
     return translated_text.text
 
 
+def check_file_size(pdf_docs):
+    for pdf in pdf_docs:
+        file_size = pdf.getbuffer().nbytes
+        if not acc:
+            if file_size >= size:
+                st.warning("Yoy have to upload file less than 50 MB")
+                pdf_docs = None
+    return pdf_docs
+
 def main():
     load_dotenv()
     st.set_page_config(page_title="LLMExplorer", page_icon=":robot_face:")
@@ -103,6 +115,7 @@ def main():
     with st.sidebar:
         st.subheader("Your documents")
         pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
+        pdf_docs = check_file_size(pdf_docs)
         if st.button("Process"):
             if pdf_docs:
                 with st.spinner("Processing..."):

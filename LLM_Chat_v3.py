@@ -2,16 +2,18 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+
+# from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
-from langchain.llms import HuggingFaceHub
-from googletrans import Translator
+
+# from langchain.llms import HuggingFaceHub
+from translate import Translator
 from htmlTemplates import css, bot_template, user_template
 import os
-# from langchain.chat_models import ChatOpenAI    #for OpenAI llm
-# from langchain.embeddings import OpenAIEmbeddings  #for OpenAI llm
+from langchain.chat_models import ChatOpenAI  # for OpenAI llm
+from langchain.embeddings import OpenAIEmbeddings  # for OpenAI llm
 
 
 def get_pdf_text(pdf_docs):
@@ -24,28 +26,23 @@ def get_pdf_text(pdf_docs):
 
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=1000,
-        chunk_overlap=200,
-        length_function=len
+        separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len
     )
     return text_splitter.split_text(text)
 
 
 def get_vectorstore(text_chunks):
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
-    # embeddings = OpenAIEmbeddings()  #for OpenAI llm
+    # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    embeddings = OpenAIEmbeddings()  # for OpenAI llm
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
 
 def get_conversation_chain(vectorstore):
-    llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature": 0.5, "max_length": 1024})
-    # llm = ChatOpenAI()  #for OpenAI llm
+    # llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature": 0.5, "max_length": 1024})
+    llm = ChatOpenAI()  # for OpenAI llm
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     return ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vectorstore.as_retriever(),
-        memory=memory
+        llm=llm, retriever=vectorstore.as_retriever(), memory=memory
     )
 
 
@@ -80,9 +77,9 @@ def load_chat_history(filename="chat_history.txt"):
 
 
 def translate_text(text, target_language):
-    translator = Translator()
-    translated_text = translator.translate(text, dest=target_language)
-    return translated_text.text
+    translator = Translator(to_lang=target_language)
+    translated_text = translator.translate(text)
+    return translated_text
 
 
 def main():
@@ -125,7 +122,9 @@ def main():
                 st.success("Chat history saved successfully!")
         st.subheader("Translation")
         text_to_translate = st.text_area("Enter text to translate:")
-        target_language = st.selectbox("Select target language:", ["en", "fr", "es", "de", "ru"])
+        target_language = st.selectbox(
+            "Select target language:", ["en", "fr", "es", "de", "ru", "uk"]
+        )
         if st.button("Translate"):
             if text_to_translate:
                 translated_text = translate_text(text_to_translate, target_language)

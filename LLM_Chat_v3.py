@@ -52,13 +52,16 @@ def get_conversation_chain(vectorstore):
 
 
 def handle_user_input(user_question, conversation_chain, chat_history):
+    chat_history.clear()
     with get_openai_callback() as cb:
         response = conversation_chain({"question": user_question})
         chat_history.extend(reversed(response["chat_history"]))
+        st.write(cb)
         for i, message in enumerate(chat_history):
             template = user_template if i % 2 != 0 else bot_template
             st.write(template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-            st.write(cb)
+
+
 
 
 def clear_chat_history(chat_history):
@@ -66,9 +69,8 @@ def clear_chat_history(chat_history):
 
 
 def save_chat_history(chat_history, filename="chat_history.txt"):
-    with open(filename, "w") as file:
-        for message in chat_history:
-            file.write(f"{message.sender}: {message.content}\n")
+    chat_history.clear()
+    st.success("Chat history saved successfully")
 
 
 def translate_text(text, target_language):
@@ -112,6 +114,7 @@ def main():
             )
 
     with st.sidebar:
+
         st.subheader("Your documents")
 
         pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
@@ -137,11 +140,11 @@ def main():
 
         if st.button("Clear Chat History"):
             clear_chat_history(st.session_state.chat_history)
+            st.success("Chat history cleared successfully.")
 
         if st.button("Save Chat History"):
             if st.session_state.chat_history:
                 save_chat_history(st.session_state.chat_history)
-                st.success("Chat history saved successfully.")
 
         st.subheader("Translation")
         text_to_translate = st.text_area("Enter text to translate:")
